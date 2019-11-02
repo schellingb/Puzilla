@@ -1,6 +1,6 @@
 /*
   Puzilla
-  Copyright (C) 2013,2016 Bernhard Schelling
+  Copyright (C) 2013-2019 Bernhard Schelling
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -120,6 +120,6 @@ struct sSceneTitle : public ZL_Scene
 
 		ZL_Display::PopMatrix();
 
-		DrawTextBordered(ZL_Vector(ZLHALFW, 20), "(c) 2013 Bernhard Schelling - Nukular Design", fntMain);
+		DrawTextBordered(ZL_Vector(ZLHALFW, 20), "(c) 2013-2019 Bernhard Schelling", fntMain);
 	}
 } SceneMenu;

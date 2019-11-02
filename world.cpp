@@ -1,6 +1,6 @@
 /*
   Puzilla
-  Copyright (C) 2013,2016 Bernhard Schelling
+  Copyright (C) 2013-2019 Bernhard Schelling
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -431,15 +431,8 @@ struct sPlayer
 			chargeAmount = 0;
 			imcCharge.Stop();
 		}
-
-
-
-
-
-
-
-
 	}
+
 	void UpdateVelocity(const cpVect& gravity, cpFloat damping, cpFloat dt)
 	{
 		// Grab the grounding normal from last frame

@@ -1,6 +1,6 @@
 /*
   Puzilla
-  Copyright (C) 2013,2016 Bernhard Schelling
+  Copyright (C) 2013-2019 Bernhard Schelling
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -24,6 +24,12 @@
 
 ZL_Font fntMain, fntBig;
 
+#ifdef __SMARTPHONE__
+bool showTouchUI = true;
+#else
+bool showTouchUI = false;
+#endif
+
 struct sPuzilla : public ZL_Application
 {
 	sPuzilla() : ZL_Application(60) { }
@@ -36,7 +42,6 @@ struct sPuzilla : public ZL_Application
 		ZL_Display::SetAA(true);
 		ZL_Audio::Init();
 		ZL_Timer::Init();
-		//ZL_Application::SettingsInit("Puzilla");
 
 		fntMain = ZL_Font("Data/fntMain.png");
 		fntBig = ZL_Font("Data/typomoderno_ttf.zip", 40).SetDrawAtBaseline(false);

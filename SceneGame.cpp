@@ -1,6 +1,6 @@
 /*
   Puzilla
-  Copyright (C) 2013,2016 Bernhard Schelling
+  Copyright (C) 2013-2019 Bernhard Schelling
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -27,11 +27,6 @@ static float scoredisplay = 0;
 static bool paused = true;
 static ZL_Rectf recPause, recPauseContinue, recPauseQuit, recPauseRestart;
 
-#ifdef __SMARTPHONE__
-#define SHOW_SMARTPHONE_UI
-#endif
-
-#ifdef SHOW_SMARTPHONE_UI
 static ZL_Surface srfUIButtons, srfUIPause;
 static struct sGameButton
 {
@@ -55,14 +50,13 @@ static struct sGameButton
 	}
 	void Draw()
 	{
-		scalar off = (is_down ? 3 : 0);
+		scalar off = s(is_down ? 3 : 0);
 		srfUIButtons.SetTilesetIndex(surface_tile_index);
 		srfUIButtons.DrawTo(rec.left+5, rec.low-5, rec.right+5, rec.high-5, ZLBLACK);
 		srfUIButtons.DrawTo(rec.left+off, rec.low-off, rec.right+off, rec.high-off, (is_down ? ZLLUM(0.8) : ZLOPAQUE));
 	}
 } btnJump1, btnJump2, btnFire, btnLeft, btnRight;
 static ZL_Rectf recBtnPause;
-#endif
 
 void StartGame()
 {
@@ -79,14 +73,12 @@ void UpdateUI()
 	recPauseQuit     = ZL_Rectf(ZLHALFW - 120, ZLHALFH -  70, ZLHALFW + 120, ZLHALFH -   0);
 	recPauseRestart  = ZL_Rectf(ZLHALFW - 120, ZLHALFH +  30, ZLHALFW + 120, ZLHALFH + 100);
 
-	#ifdef SHOW_SMARTPHONE_UI
 	btnJump1 = sGameButton(         10 , 160, 0);
 	btnJump2 = sGameButton(ZLFROMW(150), 160, 0);
 	btnFire  = sGameButton(         10 ,  10, 1);
 	btnLeft  = sGameButton(ZLFROMW(300),  10, 2);
 	btnRight = sGameButton(ZLFROMW(150),  10, 3);
 	recBtnPause = ZL_Rectf(ZLFROMW(167+10), ZLFROMH(64+10), ZLFROMW(10), ZLFROMH(10));
-	#endif
 }
 
 void SetPause(bool setpause, bool playsound = true)
@@ -104,10 +96,8 @@ struct sSceneGame : public ZL_Scene
 	{
 		txtScoreLabel = ZL_TextBuffer(fntBig, "SCORE:");
 		txtGameOver = ZL_TextBuffer(fntBig, "GAME OVER");
-		#ifdef SHOW_SMARTPHONE_UI
 		srfUIButtons = ZL_Surface("Data/uibuttons.png").SetTilesetClipping(2, 2);
 		srfUIPause = ZL_Surface("Data/uipause.png");
-		#endif
 	}
 
 	int InitTransitionEnter(ZL_SceneType, void*)
@@ -141,17 +131,16 @@ struct sSceneGame : public ZL_Scene
 
 	void OnPointerDown(ZL_PointerPressEvent& e)
 	{
+		showTouchUI = true;
 		if (World.gameovertime) { StartGame(); return; }
 		if (!paused)
 		{
-			#ifdef SHOW_SMARTPHONE_UI
 			if      (btnFire.OnPointerDown(e))  World.PlayerAttackInput = true;
-			else if (btnJump1.OnPointerDown(e))  UpdatePlayerInput();
-			else if (btnJump2.OnPointerDown(e))  UpdatePlayerInput();
+			else if (btnJump1.OnPointerDown(e)) UpdatePlayerInput();
+			else if (btnJump2.OnPointerDown(e)) UpdatePlayerInput();
 			else if (btnLeft.OnPointerDown(e))  UpdatePlayerInput();
 			else if (btnRight.OnPointerDown(e)) UpdatePlayerInput();
 			else if (recBtnPause.Contains(e)) SetPause(true);
-			#endif
 			return;
 		}
 		if (!recPause.Contains(e)) SetPause(false);
@@ -162,17 +151,16 @@ struct sSceneGame : public ZL_Scene
 
 	void OnPointerUp(ZL_PointerPressEvent& e)
 	{
-		#ifdef SHOW_SMARTPHONE_UI
 		if      (btnFire.OnPointerUp(e))  World.PlayerAttackInput = false;
-		else if (btnJump1.OnPointerUp(e))  UpdatePlayerInput();
-		else if (btnJump2.OnPointerUp(e))  UpdatePlayerInput();
+		else if (btnJump1.OnPointerUp(e)) UpdatePlayerInput();
+		else if (btnJump2.OnPointerUp(e)) UpdatePlayerInput();
 		else if (btnLeft.OnPointerUp(e))  UpdatePlayerInput();
 		else if (btnRight.OnPointerUp(e)) UpdatePlayerInput();
-		#endif
 	}
 
 	void OnKeyDown(ZL_KeyboardEvent& e)
 	{
+		showTouchUI = false;
 		if (e.is_repeat) return;
 		if (paused)
 		{
@@ -203,15 +191,9 @@ struct sSceneGame : public ZL_Scene
 	{
 		World.PlayerMoveInput.x = 0;
 		World.PlayerMoveInput.y = 0;
-		#ifdef SHOW_SMARTPHONE_UI
 		if (btnLeft.is_down || ZL_Display::KeyDown[ZLK_LEFT] || ZL_Display::KeyDown[ZLK_A]) World.PlayerMoveInput.x -= 1;
 		if (btnRight.is_down || ZL_Display::KeyDown[ZLK_RIGHT] || ZL_Display::KeyDown[ZLK_D]) World.PlayerMoveInput.x += 1;
 		if (btnJump1.is_down || btnJump2.is_down || ZL_Display::KeyDown[ZLK_UP] || ZL_Display::KeyDown[ZLK_W]) World.PlayerMoveInput.y += 1;
-		#else
-		if (ZL_Display::KeyDown[ZLK_LEFT] || ZL_Display::KeyDown[ZLK_A]) World.PlayerMoveInput.x -= 1;
-		if (ZL_Display::KeyDown[ZLK_RIGHT] || ZL_Display::KeyDown[ZLK_D]) World.PlayerMoveInput.x += 1;
-		if (ZL_Display::KeyDown[ZLK_UP] || ZL_Display::KeyDown[ZLK_W]) World.PlayerMoveInput.y += 1;
-		#endif
 	}
 
 	void Calculate()
@@ -252,15 +234,16 @@ struct sSceneGame : public ZL_Scene
 		txtScore.Draw(150+2, ZLFROMH(75)+2, scorescale, scorescale, ZLBLACK, ZL_Origin::TopRight);
 		txtScore.Draw(150+2, ZLFROMH(75)-2, scorescale, scorescale, ZLBLACK, ZL_Origin::TopRight);
 		txtScore.Draw(150, ZLFROMH(75), scorescale, scorescale, ZL_Origin::TopRight);
-		#ifdef SHOW_SMARTPHONE_UI
-		btnJump1.Draw();
-		btnJump2.Draw();
-		btnFire.Draw();
-		btnLeft.Draw();
-		btnRight.Draw();
-		srfUIPause.DrawTo(recBtnPause.left+5, recBtnPause.low-5, recBtnPause.right+5, recBtnPause.high-5, ZLBLACK);
-		srfUIPause.DrawTo(recBtnPause);
-		#endif
+		if (showTouchUI)
+		{
+			btnJump1.Draw();
+			btnJump2.Draw();
+			btnFire.Draw();
+			btnLeft.Draw();
+			btnRight.Draw();
+			srfUIPause.DrawTo(recBtnPause.left+5, recBtnPause.low-5, recBtnPause.right+5, recBtnPause.high-5, ZLBLACK);
+			srfUIPause.DrawTo(recBtnPause);
+		}
 		if (World.combotime && World.combocount > 1 && (ZLTICKS - World.combotime) < 1000)
 		{
 			scalar sc = 5 - (s(ZLTICKS - World.combotime)/200.0f);
