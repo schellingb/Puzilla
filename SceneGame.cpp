@@ -228,7 +228,7 @@ struct sSceneGame : public ZL_Scene
 		txtScoreLabel.Draw(150+2, ZLFROMH(45)+2, 0.8f, 0.8f, ZLBLACK, ZL_Origin::TopRight);
 		txtScoreLabel.Draw(150+2, ZLFROMH(45)-2, 0.8f, 0.8f, ZLBLACK, ZL_Origin::TopRight);
 		txtScoreLabel.Draw(150, ZLFROMH(45), 0.8f, 0.8f, ZL_Origin::TopRight);
-		scalar scorescale = 1 + ZL_Math::Clamp((World.score - scoredisplay) / 500, 0, 1);
+		scalar scorescale = 1 + ZL_Math::Clamp01((World.score - scoredisplay) / 500);
 		txtScore.Draw(150-2, ZLFROMH(75)-2, scorescale, scorescale, ZLBLACK, ZL_Origin::TopRight);
 		txtScore.Draw(150-2, ZLFROMH(75)+2, scorescale, scorescale, ZLBLACK, ZL_Origin::TopRight);
 		txtScore.Draw(150+2, ZLFROMH(75)+2, scorescale, scorescale, ZLBLACK, ZL_Origin::TopRight);
